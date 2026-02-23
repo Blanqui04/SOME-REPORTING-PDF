@@ -1,0 +1,70 @@
+"""Alembic environment configuration.
+
+Reads the database URL from application settings and configures
+Alembic to use SQLAlchemy models for autogenerate support.
+"""
+
+import os
+import sys
+from logging.config import fileConfig
+from pathlib import Path
+
+from sqlalchemy import create_engine, pool
+
+from alembic import context
+
+# Ensure project root is on sys.path and CWD for .env loading
+project_root = str(Path(__file__).resolve().parents[2])
+sys.path.insert(0, project_root)
+os.chdir(project_root)
+
+from backend.app.core.config import Settings  # noqa: E402
+from backend.app.models import Base  # noqa: E402
+
+config = context.config
+
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
+
+target_metadata = Base.metadata
+
+# Override sqlalchemy.url with the app's database_url
+settings = Settings()  # type: ignore[call-arg]
+_db_url = settings.database_url
+
+
+def run_migrations_offline() -> None:
+    """Run migrations in 'offline' mode.
+
+    Configures the context with just a URL and not an Engine.
+    Calls to context.execute() emit the given string to the script output.
+    """
+    context.configure(
+        url=_db_url,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        dialect_opts={"paramstyle": "named"},
+    )
+
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+def run_migrations_online() -> None:
+    """Run migrations in 'online' mode.
+
+    Creates an Engine and associates a connection with the context.
+    """
+    connectable = create_engine(_db_url, poolclass=pool.NullPool)
+
+    with connectable.connect() as connection:
+        context.configure(connection=connection, target_metadata=target_metadata)
+
+        with context.begin_transaction():
+            context.run_migrations()
+
+
+if context.is_offline_mode():
+    run_migrations_offline()
+else:
+    run_migrations_online()
