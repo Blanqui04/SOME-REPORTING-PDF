@@ -1,0 +1,17 @@
+[Unit]
+Description=Grafana PDF Reporter API
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=administrador
+Group=administrador
+WorkingDirectory=/home/administrador/Desktop/pdf_report/SOME-REPORTING-PDF
+ExecStart=/home/administrador/Desktop/pdf_report/SOME-REPORTING-PDF/.venv/bin/uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=5
+Environment=PATH=/home/administrador/Desktop/pdf_report/SOME-REPORTING-PDF/.venv/bin:/usr/local/bin:/usr/bin
+
+[Install]
+WantedBy=multi-user.target
