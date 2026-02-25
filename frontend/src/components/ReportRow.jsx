@@ -23,7 +23,7 @@ function formatSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export default function ReportRow({ report }) {
+export default function ReportRow({ report, onPreview }) {
   const [downloading, setDownloading] = useState(false)
   const { t, locale } = useLanguage()
 
@@ -47,10 +47,10 @@ export default function ReportRow({ report }) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 flex items-center justify-between">
       <div className="flex-1 min-w-0">
-        <h3 className="font-semibold text-gray-900 truncate">{report.title}</h3>
-        <div className="flex items-center mt-1 space-x-2 text-sm text-gray-500 flex-wrap">
+        <h3 className="font-semibold text-gray-900 dark:text-white truncate">{report.title}</h3>
+        <div className="flex items-center mt-1 space-x-2 text-sm text-gray-500 dark:text-gray-400 flex-wrap">
           <span>{report.dashboard_title}</span>
           <span>&middot;</span>
           <span>{formatDate(report.created_at, locale)}</span>
@@ -62,13 +62,25 @@ export default function ReportRow({ report }) {
           )}
         </div>
         {report.error_message && (
-          <p className="mt-1 text-sm text-red-600 truncate">
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400 truncate">
             {report.error_message}
           </p>
         )}
       </div>
       <div className="flex items-center space-x-3 ml-4 flex-shrink-0">
         <StatusBadge status={report.status} />
+        {report.status === 'completed' && onPreview && (
+          <button
+            onClick={() => onPreview(report)}
+            className="text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            title={t('reports.preview')}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+          </button>
+        )}
         {report.status === 'completed' && (
           <button
             onClick={handleDownload}

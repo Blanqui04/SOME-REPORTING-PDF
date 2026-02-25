@@ -53,5 +53,52 @@ class Settings(BaseSettings):
     GRAFANA_API_KEY: str
     GRAFANA_TIMEOUT: int = 30
 
+    # --- Redis & Celery ---
+    REDIS_URL: str = "redis://localhost:6379/0"
+    CELERY_BROKER_URL: str = "redis://localhost:6379/1"
+    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/2"
+    CELERY_TASK_TIMEOUT: int = 600
+
+    # --- SMTP (Email) ---
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_FROM_EMAIL: str = "noreply@grafana-reporter.local"
+    SMTP_TLS: bool = True
+
     # --- CORS ---
     CORS_ORIGINS: list[str] = ["http://localhost:5173"]
+
+    # --- LDAP / Active Directory ---
+    LDAP_ENABLED: bool = False
+    LDAP_SERVER: str = ""
+    LDAP_PORT: int = 389
+    LDAP_USE_SSL: bool = False
+    LDAP_BIND_DN: str = ""
+    LDAP_BIND_PASSWORD: str = ""
+    LDAP_SEARCH_BASE: str = ""
+    LDAP_USER_FILTER: str = "(sAMAccountName={username})"
+    LDAP_EMAIL_ATTRIBUTE: str = "mail"
+    LDAP_DISPLAY_NAME_ATTRIBUTE: str = "displayName"
+    LDAP_DEFAULT_ROLE: str = "editor"
+
+    # --- TOTP 2FA ---
+    TOTP_ENABLED: bool = False
+    TOTP_ISSUER: str = "Grafana PDF Reporter"
+
+    # --- Webhook Notifications ---
+    WEBHOOK_SLACK_URL: str = ""
+    WEBHOOK_TEAMS_URL: str = ""
+    WEBHOOK_GENERIC_URL: str = ""
+
+    # --- S3 / MinIO Object Storage ---
+    S3_ENABLED: bool = False
+    S3_ENDPOINT_URL: str = ""
+    S3_ACCESS_KEY: str = ""
+    S3_SECRET_KEY: str = ""
+    S3_BUCKET_NAME: str = "grafana-reports"
+    S3_REGION: str = "us-east-1"
+
+    # --- Prometheus Metrics ---
+    PROMETHEUS_ENABLED: bool = False

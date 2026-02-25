@@ -56,7 +56,9 @@ class Report(UUIDMixin, TimestampMixin, Base):
     pdf_size_bytes: Mapped[int | None] = mapped_column(Integer, nullable=True)
     file_name: Mapped[str] = mapped_column(String(255), nullable=False)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_by_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    created_by_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     generated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     created_by: Mapped[User] = relationship(back_populates="reports")

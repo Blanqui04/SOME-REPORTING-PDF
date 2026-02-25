@@ -8,6 +8,9 @@ coverage>=7.4.0
 # Test utilities
 factory-boy>=3.3.0
 
+# Load testing
+locust>=2.24.0
+
 # Linting & formatting
 ruff>=0.3.0
 mypy>=1.8.0

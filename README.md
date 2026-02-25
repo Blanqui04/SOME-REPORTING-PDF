@@ -1,41 +1,83 @@
-# SOME-REPORTING-PDF
+# Grafana PDF Reporter
 
 [![CI](https://github.com/Blanqui04/SOME-REPORTING-PDF/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Blanqui04/SOME-REPORTING-PDF/actions/workflows/ci.yml)
 
-Aplicación web para generar informes PDF de dashboards de Grafana de forma manual o automatizada.
+Aplicación web completa para generar informes PDF de dashboards de Grafana de forma manual o automatizada.
 
-## Estado del proyecto
+## Funcionalidades
 
-El proyecto está en estado **MVP funcional**:
+| Funcionalidad | Estado |
+|---|---|
+| Autenticación JWT (login + registro) | ✅ |
+| LDAP / Active Directory + TOTP 2FA | ✅ |
+| RBAC (admin / editor / viewer) | ✅ |
+| Integración completa Grafana API | ✅ |
+| Generación PDF avanzada (WeasyPrint + Jinja2) | ✅ |
+| Plantillas PDF personalizables con overlay | ✅ |
+| Taula de continguts (TOC), marca d'aigua, orientació | ✅ |
+| Comparació temporal, taules de dades, grid layout | ✅ |
+| Xifrat PDF (AES-256) | ✅ |
+| Programació automàtica (Celery + Redis, cron) | ✅ |
+| Frontend React + Tailwind amb mode fosc | ✅ |
+| i18n 4 idiomes (CA / ES / EN / PL) | ✅ |
+| Notificacions Slack / Teams (webhooks) | ✅ |
+| Emmagatzematge S3 / MinIO | ✅ |
+| Eina CLI | ✅ |
+| Mètriques Prometheus | ✅ |
+| Compressió PDF | ✅ |
+| Generació en batch | ✅ |
+| Cache de panells (Redis) | ✅ |
+| Filtre per tags, estadístiques, preview PDF | ✅ |
+| Toast notifications, rate limiting, audit log | ✅ |
+| 230 tests (pytest), ruff, mypy | ✅ |
+| CI/CD GitHub Actions | ✅ |
+| Docker + docker-compose (5 serveis) | ✅ |
 
-- API backend con autenticación JWT
-- Integración con API HTTP de Grafana
-- Renderizado de paneles y generación PDF (Jinja2 + WeasyPrint)
-- Frontend React para login, dashboards y reportes
-- Migraciones con Alembic
-- Contenedorización con Docker
+## Stack tècnic
 
-## Stack técnico
+| Component | Tecnologia |
+|---|---|
+| Backend | Python 3.12, FastAPI, SQLAlchemy 2.x, PostgreSQL 16 |
+| Auth | JWT (python-jose) + LDAP (ldap3) + TOTP (pyotp) |
+| PDF | WeasyPrint + Jinja2 + pypdf (overlay, xifrat, compressió) |
+| Tasques | Celery 5.x + Redis 7 |
+| Frontend | React 18 + Vite 5 + Tailwind CSS 3 |
+| Infra | Docker + docker-compose + GitHub Actions |
+| Mètriques | Prometheus (endpoint `/metrics`) |
 
-- Backend: Python 3.11+, FastAPI, SQLAlchemy 2.x, PostgreSQL
-- Auth: JWT (`python-jose`) + hash de contraseñas (`passlib`)
-- PDF: WeasyPrint + Jinja2
-- Frontend: React + Vite + Tailwind CSS
-- Infra: Docker + docker-compose
+## Estructura del projecte
 
-## Estructura
+```
+backend/
+├── app/
+│   ├── api/v1/         # Endpoints REST (auth, grafana, reports, schedules, templates, audit, i18n)
+│   ├── core/           # Config, security, middleware, rate limiting, metrics, i18n, permissions
+│   ├── models/         # SQLAlchemy models (user, report, schedule, template, audit)
+│   ├── schemas/        # Pydantic v2 schemas
+│   ├── services/       # Business logic (auth, grafana, pdf, reports, notifications, storage, cache)
+│   ├── tasks/          # Celery tasks (report generation, schedules)
+│   └── templates/      # Jinja2 + CSS templates for PDF
+├── cli.py              # Command-line interface
+├── tests/              # 230 tests (pytest)
+└── requirements.txt
+frontend/
+├── src/
+│   ├── api/            # HTTP client (Axios)
+│   ├── components/     # Reusable components (Layout, Toast, ThemeToggle, etc.)
+│   ├── context/        # React contexts (Auth, Language, Theme)
+│   ├── i18n/           # Translations (4 languages)
+│   └── pages/          # Page components (Login, Dashboards, Reports, Stats, etc.)
+└── package.json
+```
 
-- `backend/`: API, modelos, servicios, migraciones y tests
-- `frontend/`: SPA React (Vite)
-- `Dockerfile`, `docker-compose.yml`: despliegue local
+## Requisits previs
 
-## Requisitos
-
-- Python 3.11+
+- Python 3.12+
 - Node.js 18+
-- PostgreSQL (si ejecutas sin Docker)
+- PostgreSQL 16+ (o Docker)
+- Redis 7+ (o Docker)
 
-## Configuración local
+## Configuració local
 
 ### 1) Backend
 
@@ -47,12 +89,18 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ```
 
-Configura variables de entorno (base de datos, secrets JWT, Grafana URL/API key) según tu entorno.
+Crea un fitxer `.env` amb les variables requerides:
 
-### 2) Migraciones
+```env
+POSTGRES_PASSWORD=your_password
+JWT_SECRET_KEY=your_secret_key
+GRAFANA_URL=http://your-grafana:3000
+GRAFANA_API_KEY=your_grafana_api_key
+```
+
+### 2) Migracions
 
 ```bash
-cd backend
 alembic upgrade head
 ```
 
@@ -64,49 +112,106 @@ npm install
 npm run dev
 ```
 
-### 4) Ejecutar backend
+### 4) Executar backend
 
 ```bash
-cd backend
-uvicorn app.main:app --reload
+uvicorn backend.app.main:app --reload
 ```
 
-## Ejecutar con Docker
+### 5) Workers Celery
+
+```bash
+celery -A backend.app.celery_app:celery worker -l info
+celery -A backend.app.celery_app:celery beat -l info
+```
+
+## Executar amb Docker
 
 ```bash
 docker compose up --build
 ```
 
-## Calidad y pruebas
+Aixeca 5 serveis: `app` (FastAPI), `postgres`, `redis`, `celery-worker`, `celery-beat`.
 
-Desde la raíz del repositorio:
+## CLI
 
 ```bash
-./.venv/bin/python -m pytest -q
-./.venv/bin/ruff check backend
-./.venv/bin/mypy backend/app
+# Llistar dashboards
+python -m backend.cli -u admin -p password dashboards
+
+# Generar informe amb espera
+python -m backend.cli -u admin -p password generate -d <dashboard_uid> --wait -o report.pdf
+
+# Llistar informes
+python -m backend.cli -u admin -p password list --status completed
+
+# Descarregar informe
+python -m backend.cli -u admin -p password download <report_id> -o output.pdf
+
+# Estadístiques
+python -m backend.cli -u admin -p password stats --json
 ```
 
-## Integración continua (CI)
+## Qualitat i proves
 
-El repositorio incluye workflow en GitHub Actions en [.github/workflows/ci.yml](.github/workflows/ci.yml):
+```bash
+# Tests (230 tests)
+POSTGRES_PASSWORD=test JWT_SECRET_KEY=test GRAFANA_URL=http://localhost:3000 GRAFANA_API_KEY=test \
+  pytest -q
 
-- Ejecuta en push a `main`, pull request contra `main` y ejecución manual.
-- Job `frontend`: `npm ci` + `npm run build` para validar SPA React.
-- Job `lint`: `ruff check`, `ruff format --check` y `mypy`.
-- Job `test`: levanta PostgreSQL de servicio y ejecuta tests backend.
-- Incluye caché de dependencias pip para reducir tiempos de ejecución.
+# Linting
+ruff check backend/
 
-## Endpoints principales
+# Type checking (80 source files)
+mypy backend/
+```
 
-- `POST /api/v1/auth/login`: autenticación
-- `GET /api/v1/grafana/dashboards`: listar dashboards
-- `POST /api/v1/reports`: generar reporte
-- `GET /health`: salud del servicio
+## API Endpoints principals
 
-## Próximas mejoras sugeridas
+| Mètode | Path | Descripció |
+|---|---|---|
+| `POST` | `/api/v1/auth/login` | Autenticació JWT |
+| `POST` | `/api/v1/auth/register` | Registre d'usuari |
+| `POST` | `/api/v1/auth/totp/setup` | Configurar 2FA |
+| `GET` | `/api/v1/grafana/dashboards` | Llistar dashboards |
+| `GET` | `/api/v1/grafana/dashboards/{uid}` | Detall dashboard |
+| `POST` | `/api/v1/reports/generate` | Generar informe PDF |
+| `POST` | `/api/v1/reports/batch` | Generació en batch |
+| `GET` | `/api/v1/reports` | Llistar informes |
+| `GET` | `/api/v1/reports/stats` | Estadístiques |
+| `GET` | `/api/v1/reports/{id}/download` | Descarregar PDF |
+| `DELETE` | `/api/v1/reports/{id}` | Eliminar informe |
+| `GET/POST` | `/api/v1/schedules` | Gestió programacions |
+| `GET/POST` | `/api/v1/templates` | Gestió plantilles |
+| `GET` | `/api/v1/audit` | Log d'auditoria (admin) |
+| `GET` | `/api/v1/i18n/{lang}` | Traduccions |
+| `GET` | `/health` | Health check |
+| `GET` | `/metrics` | Mètriques Prometheus |
+| `GET` | `/docs` | Swagger UI |
+| `GET` | `/redoc` | ReDoc API docs |
 
-- Scheduler de reportes en background con reintentos
-- Métricas/observabilidad (Prometheus + logs estructurados)
-- CI/CD con lint + tests + build de imágenes
-- Gestión de permisos por dashboard/rol
+## Variables d'entorn
+
+| Variable | Descripció | Per defecte |
+|---|---|---|
+| `POSTGRES_PASSWORD` | Contrasenya PostgreSQL | *(requerit)* |
+| `JWT_SECRET_KEY` | Secret per tokens JWT | *(requerit)* |
+| `GRAFANA_URL` | URL base de Grafana | *(requerit)* |
+| `GRAFANA_API_KEY` | API key de Grafana | *(requerit)* |
+| `REDIS_URL` | URL Redis | `redis://localhost:6379/0` |
+| `CELERY_BROKER_URL` | URL broker Celery | `redis://localhost:6379/1` |
+| `LDAP_ENABLED` | Activar LDAP/AD | `false` |
+| `TOTP_ENABLED` | Activar 2FA | `false` |
+| `S3_ENABLED` | Activar emmagatzematge S3 | `false` |
+| `PROMETHEUS_ENABLED` | Activar mètriques | `false` |
+| `WEBHOOK_SLACK_URL` | URL webhook Slack | *(buit)* |
+| `WEBHOOK_TEAMS_URL` | URL webhook Teams | *(buit)* |
+
+## Integració contínua (CI)
+
+GitHub Actions workflow a `.github/workflows/ci.yml`:
+
+- **Frontend**: `npm ci` + `npm run build`
+- **Lint**: `ruff check` + `ruff format --check` + `mypy`
+- **Test**: PostgreSQL de servei + `pytest`
+- Caché de dependències pip per reduir temps

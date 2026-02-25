@@ -17,6 +17,16 @@
     }
 }
 
+/* Landscape orientation override */
+@page landscape {
+    size: A4 landscape;
+    margin: 15mm 15mm 20mm 15mm;
+}
+
+.landscape-mode {
+    page: landscape;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -154,4 +164,195 @@ body {
     font-size: 9px;
     color: #999;
     text-align: center;
+}
+
+/* ========== Table of Contents ========== */
+.toc-section {
+    page-break-after: always;
+    margin-bottom: 20px;
+}
+
+.toc-section h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.toc-list {
+    list-style: none;
+    padding: 0;
+}
+
+.toc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px dotted #ccc;
+}
+
+.toc-item a {
+    text-decoration: none;
+    color: #333;
+    font-size: 12px;
+}
+
+.toc-item a:hover {
+    color: #2196F3;
+}
+
+.toc-panel-id {
+    font-size: 10px;
+    color: #999;
+    white-space: nowrap;
+    margin-left: 8px;
+}
+
+/* ========== Panel Grid Layout ========== */
+.panels-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.panels-grid .panel {
+    flex: 1 1 100%;
+    max-width: 100%;
+}
+
+.panels-grid-2 .panel {
+    flex: 1 1 calc(50% - 8px);
+    max-width: calc(50% - 8px);
+}
+
+.panels-grid-2 .panel-image {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* ========== Data Tables ========== */
+.data-tables-section {
+    page-break-before: always;
+    margin-top: 24px;
+}
+
+.data-tables-section h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.data-table-block {
+    margin-bottom: 24px;
+    page-break-inside: avoid;
+}
+
+.data-table-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    background-color: #f0f4f8;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9px;
+    margin-bottom: 12px;
+}
+
+.data-table th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    color: #555;
+    padding: 5px 8px;
+    border: 1px solid #e0e0e0;
+    text-align: left;
+}
+
+.data-table td {
+    padding: 4px 8px;
+    border: 1px solid #e0e0e0;
+    color: #333;
+}
+
+.data-table tr:nth-child(even) td {
+    background-color: #fafafa;
+}
+
+.data-table-no-data {
+    padding: 16px;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    background-color: #fafafa;
+    border: 1px dashed #ccc;
+}
+
+/* ========== Temporal Comparison ========== */
+.comparison-section {
+    page-break-before: always;
+    margin-top: 24px;
+}
+
+.comparison-section h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.comparison-panel {
+    margin-bottom: 24px;
+    page-break-inside: avoid;
+}
+
+.comparison-panel-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    background-color: #f0f4f8;
+}
+
+.comparison-row {
+    display: flex;
+    gap: 12px;
+}
+
+.comparison-col {
+    flex: 1;
+    min-width: 0;
+}
+
+.comparison-period-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.comparison-col img {
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+}
+
+.comparison-col .panel-no-image {
+    width: 100%;
+    padding: 30px;
+    text-align: center;
+    background-color: #fafafa;
+    border: 1px dashed #ccc;
+    color: #999;
+    font-size: 10px;
 }

@@ -2,7 +2,8 @@
 
 import uuid
 from collections.abc import Generator
-from unittest.mock import MagicMock
+from typing import Any
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -33,7 +34,7 @@ def fixture_settings() -> Settings:
 
 
 @pytest.fixture(name="engine")
-def fixture_engine():
+def fixture_engine() -> Generator[Any, None, None]:
     """Create a test database engine using SQLite."""
     engine = create_engine(
         "sqlite://",
@@ -43,7 +44,7 @@ def fixture_engine():
 
     # Enable foreign key support for SQLite
     @event.listens_for(engine, "connect")
-    def set_sqlite_pragma(dbapi_connection, connection_record):
+    def set_sqlite_pragma(dbapi_connection: Any, connection_record: Any) -> None:
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
         cursor.close()
@@ -54,7 +55,7 @@ def fixture_engine():
 
 
 @pytest.fixture(name="db")
-def fixture_db(engine) -> Generator[Session, None, None]:
+def fixture_db(engine: Any) -> Generator[Session, None, None]:
     """Yield a test database session with rollback."""
     test_session_factory = sessionmaker(bind=engine)
     session = test_session_factory()
@@ -64,7 +65,7 @@ def fixture_db(engine) -> Generator[Session, None, None]:
 
 
 @pytest.fixture(name="session_factory")
-def fixture_session_factory(engine) -> sessionmaker:
+def fixture_session_factory(engine: Any) -> sessionmaker:
     """Return a sessionmaker for background task testing."""
     return sessionmaker(bind=engine)
 
@@ -130,6 +131,21 @@ def fixture_test_user(db: Session) -> User:
     db.commit()
     db.refresh(user)
     return user
+
+
+@pytest.fixture(name="mock_celery_task", autouse=True)
+def fixture_mock_celery_task() -> Generator[MagicMock, None, None]:
+    """Mock the Celery generate_report_task to avoid needing Redis.
+
+    This fixture is auto-used so all tests get the mock.
+    """
+    with (
+        patch("backend.app.api.v1.reports.generate_report_task") as mock_task,
+        patch("backend.app.api.v1.alerts.generate_report_task") as mock_alert_task,
+    ):
+        mock_task.delay.return_value = MagicMock(id="mock-celery-task-id")
+        mock_alert_task.delay.return_value = MagicMock(id="mock-alert-task-id")
+        yield mock_task
 
 
 @pytest.fixture(name="client")

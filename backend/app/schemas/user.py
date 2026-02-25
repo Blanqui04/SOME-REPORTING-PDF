@@ -28,6 +28,9 @@ class UserResponse(BaseModel):
         email: User email address.
         username: User display name.
         is_active: Whether the user account is active.
+        role: User role (admin/editor/viewer).
+        totp_enabled: Whether TOTP 2FA is enabled.
+        auth_provider: Authentication provider (local/ldap).
         created_at: Account creation timestamp.
     """
 
@@ -35,6 +38,9 @@ class UserResponse(BaseModel):
     email: str
     username: str
     is_active: bool
+    role: str = "editor"
+    totp_enabled: bool = False
+    auth_provider: str = "local"
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

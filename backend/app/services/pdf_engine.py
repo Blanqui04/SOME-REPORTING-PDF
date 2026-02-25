@@ -3,7 +3,7 @@
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 from weasyprint import HTML
@@ -27,6 +27,58 @@ class PanelImage:
     panel_id: int
     title: str
     image_base64: str
+
+
+@dataclass
+class DataTableColumn:
+    """A column definition for a data table.
+
+    Attributes:
+        header: Column header text.
+        values: List of string values for each row.
+    """
+
+    header: str
+    values: list[str] = field(default_factory=list)
+
+
+@dataclass
+class DataTable:
+    """Tabular data to include as annex in the PDF.
+
+    Attributes:
+        panel_id: Grafana panel ID the data belongs to.
+        title: Table display title.
+        columns: List of column definitions.
+    """
+
+    panel_id: int
+    title: str
+    columns: list[DataTableColumn] = field(default_factory=list)
+
+    @property
+    def row_count(self) -> int:
+        """Return the number of data rows."""
+        if not self.columns:
+            return 0
+        return len(self.columns[0].values)
+
+
+@dataclass
+class ComparisonPanel:
+    """A pair of panel images for temporal comparison.
+
+    Attributes:
+        panel_id: Grafana panel ID.
+        title: Panel display title.
+        image_a_base64: Base64-encoded PNG for period A.
+        image_b_base64: Base64-encoded PNG for period B.
+    """
+
+    panel_id: int
+    title: str
+    image_a_base64: str
+    image_b_base64: str
 
 
 @dataclass
@@ -67,6 +119,30 @@ class ReportContext:
 
     # Locale for PDF labels
     locale: str = DEFAULT_LOCALE
+
+    # --- Sprint 5: PDF Engine Enhancements ---
+
+    # Page orientation: portrait (default) or landscape
+    orientation: Literal["portrait", "landscape"] = "portrait"
+
+    # Table of Contents: auto-generate TOC page with panel links
+    toc_enabled: bool = False
+
+    # Watermark: text overlay on every page (e.g. "Confidential", "Draft")
+    watermark_text: str | None = None
+
+    # Panel grid columns (1 = full width, 2 = two columns side by side)
+    panel_columns: int = 1
+
+    # Data tables: raw panel data as table annex
+    data_tables: list[DataTable] = field(default_factory=list)
+
+    # Temporal comparison panels
+    comparison_panels: list[ComparisonPanel] = field(default_factory=list)
+    comparison_time_from_a: str | None = None
+    comparison_time_to_a: str | None = None
+    comparison_time_from_b: str | None = None
+    comparison_time_to_b: str | None = None
 
 
 class PDFEngine:
@@ -135,10 +211,33 @@ class PDFEngine:
             "i18n_panels_section": tr["pdf.panels_section"],
             "i18n_image_not_available": tr["pdf.image_not_available"],
             "i18n_page": tr["pdf.page"],
+            # Sprint 5: PDF engine enhancement variables
+            "orientation": context.orientation,
+            "toc_enabled": context.toc_enabled,
+            "watermark_text": context.watermark_text,
+            "panel_columns": context.panel_columns,
+            "data_tables": context.data_tables,
+            "comparison_panels": context.comparison_panels,
+            "comparison_time_from_a": context.comparison_time_from_a,
+            "comparison_time_to_a": context.comparison_time_to_a,
+            "comparison_time_from_b": context.comparison_time_from_b,
+            "comparison_time_to_b": context.comparison_time_to_b,
+            # i18n labels for enhancements
+            "i18n_toc_title": tr["pdf.toc_title"],
+            "i18n_toc_panel": tr["pdf.toc_panel"],
+            "i18n_data_tables_section": tr["pdf.data_tables_section"],
+            "i18n_data_table_no_data": tr["pdf.data_table_no_data"],
+            "i18n_comparison_title": tr["pdf.comparison_title"],
+            "i18n_comparison_period_a": tr["pdf.comparison_period_a"],
+            "i18n_comparison_period_b": tr["pdf.comparison_period_b"],
         }
 
         html_content = self._render_html("report.html", template_vars)
         pdf_bytes = self._html_to_pdf(html_content)
+
+        # Apply watermark overlay if requested
+        if context.watermark_text:
+            pdf_bytes = self._apply_watermark(pdf_bytes, context.watermark_text)
 
         logger.info("PDF rendered successfully (%d bytes)", len(pdf_bytes))
         return pdf_bytes
@@ -184,6 +283,63 @@ class PDFEngine:
             return cast(bytes, html.write_pdf())
         except Exception as e:
             raise PDFRenderError(f"WeasyPrint conversion error: {e}") from e
+
+    def _apply_watermark(self, pdf_bytes: bytes, watermark_text: str) -> bytes:
+        """Apply a diagonal text watermark to every page of the PDF.
+
+        Creates a transparent watermark page using WeasyPrint, then merges
+        it onto each page of the source PDF using pypdf.
+
+        Args:
+            pdf_bytes: Original PDF bytes.
+            watermark_text: Text to display as watermark.
+
+        Returns:
+            PDF bytes with watermark applied.
+
+        Raises:
+            PDFRenderError: If watermark application fails.
+        """
+        import io
+
+        from pypdf import PdfReader, PdfWriter
+
+        try:
+            # Generate a single-page watermark PDF via WeasyPrint
+            watermark_html = f"""
+            <html><body style="margin:0;padding:0;">
+            <div style="
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(-45deg);
+                font-size: 72px;
+                color: rgba(200, 200, 200, 0.3);
+                font-family: Arial, sans-serif;
+                font-weight: bold;
+                white-space: nowrap;
+                pointer-events: none;
+                z-index: 9999;
+            ">{watermark_text}</div>
+            </body></html>
+            """
+            watermark_pdf = HTML(string=watermark_html).write_pdf()
+
+            source_reader = PdfReader(io.BytesIO(pdf_bytes))
+            watermark_reader = PdfReader(io.BytesIO(watermark_pdf))
+            watermark_page = watermark_reader.pages[0]
+            writer = PdfWriter()
+
+            for page in source_reader.pages:
+                page.merge_page(watermark_page)
+                writer.add_page(page)
+
+            output = io.BytesIO()
+            writer.write(output)
+            logger.info("Watermark '%s' applied to %d pages", watermark_text, len(writer.pages))
+            return output.getvalue()
+        except Exception as e:
+            raise PDFRenderError(f"Watermark application error: {e}") from e
 
     def overlay_on_base_pdf(self, base_pdf_bytes: bytes, content_pdf_bytes: bytes) -> bytes:
         """Overlay generated report pages onto a base PDF template.

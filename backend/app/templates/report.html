@@ -2,6 +2,8 @@
 
 {% block title %}{{ report_title }}{% endblock %}
 
+{% block body_class %}{% if orientation == 'landscape' %}landscape-mode{% endif %}{% endblock %}
+
 {% block content %}
 <style>
     .report-header { border-bottom: 3px solid {{ primary_color }}; }
@@ -9,6 +11,11 @@
     .report-description { border-left: 4px solid {{ primary_color }}; }
     .panels-section h2 { color: {{ secondary_color }}; border-bottom: 1px solid #e0e0e0; }
     .panel-title { border-left: 3px solid {{ primary_color }}; }
+    .toc-section h2 { color: {{ secondary_color }}; }
+    .data-tables-section h2 { color: {{ secondary_color }}; }
+    .data-table-title { border-left: 3px solid {{ primary_color }}; }
+    .comparison-section h2 { color: {{ secondary_color }}; }
+    .comparison-panel-title { border-left: 3px solid {{ primary_color }}; }
 </style>
 
 <div class="report-header">
@@ -54,11 +61,28 @@
 </div>
 {% endif %}
 
+{# ========== Table of Contents ========== #}
+{% if toc_enabled and panels %}
+<div class="toc-section">
+    <h2>{{ i18n_toc_title }}</h2>
+    <ol class="toc-list">
+        {% for panel in panels %}
+        <li class="toc-item">
+            <a href="#panel-{{ panel.panel_id }}">{{ panel.title }}</a>
+            <span class="toc-panel-id">{{ i18n_toc_panel }} #{{ panel.panel_id }}</span>
+        </li>
+        {% endfor %}
+    </ol>
+</div>
+{% endif %}
+
+{# ========== Panels Section ========== #}
 <div class="panels-section">
     <h2>{{ i18n_panels_section }}</h2>
 
+    <div class="panels-grid{% if panel_columns == 2 %} panels-grid-2{% endif %}">
     {% for panel in panels %}
-    <div class="panel">
+    <div class="panel" id="panel-{{ panel.panel_id }}">
         <div class="panel-title">{{ panel.title }} (ID: {{ panel.panel_id }})</div>
         {% if panel.image_base64 %}
         <img class="panel-image"
@@ -71,7 +95,84 @@
         {% endif %}
     </div>
     {% endfor %}
+    </div>
 </div>
+
+{# ========== Temporal Comparison ========== #}
+{% if comparison_panels %}
+<div class="comparison-section">
+    <h2>{{ i18n_comparison_title }}</h2>
+    {% if comparison_time_from_a and comparison_time_to_a and comparison_time_from_b and comparison_time_to_b %}
+    <table class="metadata-table" style="margin-bottom: 16px;">
+        <tr>
+            <td class="label">{{ i18n_comparison_period_a }}</td>
+            <td class="value">{{ comparison_time_from_a }} &rarr; {{ comparison_time_to_a }}</td>
+            <td class="label">{{ i18n_comparison_period_b }}</td>
+            <td class="value">{{ comparison_time_from_b }} &rarr; {{ comparison_time_to_b }}</td>
+        </tr>
+    </table>
+    {% endif %}
+
+    {% for cp in comparison_panels %}
+    <div class="comparison-panel">
+        <div class="comparison-panel-title">{{ cp.title }} (ID: {{ cp.panel_id }})</div>
+        <div class="comparison-row">
+            <div class="comparison-col">
+                <div class="comparison-period-label">{{ i18n_comparison_period_a }}</div>
+                {% if cp.image_a_base64 %}
+                <img src="data:image/png;base64,{{ cp.image_a_base64 }}" alt="{{ cp.title }} - {{ i18n_comparison_period_a }}">
+                {% else %}
+                <div class="panel-no-image">{{ i18n_image_not_available }}</div>
+                {% endif %}
+            </div>
+            <div class="comparison-col">
+                <div class="comparison-period-label">{{ i18n_comparison_period_b }}</div>
+                {% if cp.image_b_base64 %}
+                <img src="data:image/png;base64,{{ cp.image_b_base64 }}" alt="{{ cp.title }} - {{ i18n_comparison_period_b }}">
+                {% else %}
+                <div class="panel-no-image">{{ i18n_image_not_available }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{# ========== Data Tables ========== #}
+{% if data_tables %}
+<div class="data-tables-section">
+    <h2>{{ i18n_data_tables_section }}</h2>
+
+    {% for dt in data_tables %}
+    <div class="data-table-block">
+        <div class="data-table-title">{{ dt.title }} (ID: {{ dt.panel_id }})</div>
+        {% if dt.columns and dt.row_count > 0 %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    {% for col in dt.columns %}
+                    <th>{{ col.header }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row_idx in range(dt.row_count) %}
+                <tr>
+                    {% for col in dt.columns %}
+                    <td>{{ col.values[row_idx] }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="data-table-no-data">{{ i18n_data_table_no_data }}</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
 <div class="report-footer">
     {{ footer_text }}

@@ -1,0 +1,13 @@
+apiVersion: v2
+name: grafana-reporter
+description: Helm chart for Grafana PDF Reporter
+type: application
+version: 1.0.0
+appVersion: "5.0.0"
+keywords:
+  - grafana
+  - pdf
+  - reporting
+home: https://github.com/Blanqui04/SOME-REPORTING-PDF
+maintainers:
+  - name: Magicinfo

@@ -29,6 +29,7 @@ const translations = {
     'nav.dashboards': 'Dashboards',
     'nav.reports': 'Informes',
     'nav.templates': 'Plantilles',
+    'nav.compare': 'Comparar',
     'nav.logout': 'Sortir',
     'nav.open_menu': 'Obrir menú',
 
@@ -187,6 +188,55 @@ const translations = {
     'lang.es': 'Español',
     'lang.en': 'English',
     'lang.pl': 'Polski',
+
+    // Nav – Sprint 6
+    'nav.stats': 'Estadístiques',
+
+    // Dashboards – Sprint 6
+    'dashboards.all_tags': 'Tots',
+
+    // Detail – Sprint 6 PDF options
+    'detail.orientation_label': 'Orientació',
+    'detail.orientation_portrait': 'Vertical',
+    'detail.orientation_landscape': 'Horitzontal',
+    'detail.panel_columns_label': 'Columnes de panell',
+    'detail.column': 'columna',
+    'detail.columns': 'columnes',
+    'detail.watermark_label': 'Filigrana',
+    'detail.watermark_placeholder': 'CONFIDENCIAL, ESBORRANY...',
+    'detail.toc_label': 'Taula de continguts',
+    'detail.data_tables_label': 'Incloure taules de dades',
+    'detail.comparison_from_label': 'Comparació des de',
+    'detail.comparison_to_label': 'Comparació fins a',
+    'detail.toast_generating': 'S\'ha iniciat la generació del PDF',
+    'detail.toast_completed': 'PDF generat correctament!',
+    'detail.toast_failed': 'Error al generar el PDF',
+
+    // Reports – Sprint 6
+    'reports.preview': 'Vista prèvia',
+    'reports.preview_error': 'Error al carregar la vista prèvia',
+
+    // Stats page
+    'stats.title': 'Estadístiques',
+    'stats.subtitle': 'Resum de generació d\'informes',
+    'stats.total_reports': 'Total informes',
+    'stats.completed': 'Completats',
+    'stats.total_size': 'Mida total',
+    'stats.avg_size': 'Mida mitjana',
+    'stats.by_status': 'Per estat',
+    'stats.top_dashboards': 'Top dashboards',
+    'stats.no_data': 'Sense dades',
+    'stats.report_singular': 'informe',
+    'stats.report_plural': 'informes',
+    'stats.error': 'Error al carregar estadístiques',
+
+    // Compare
+    'compare.title': 'Comparar informes',
+    'compare.select_report': 'Selecciona un informe...',
+    'compare.report_a': 'Informe A',
+    'compare.report_b': 'Informe B',
+    'compare.select_to_preview': 'Selecciona un informe per veure la preview',
+    'detail.drag_hint': 'Arrossega per reordenar',
   },
 
   // ── Spanish ──────────────────────────────────────────────────────────
@@ -213,6 +263,7 @@ const translations = {
     'nav.dashboards': 'Dashboards',
     'nav.reports': 'Informes',
     'nav.templates': 'Plantillas',
+    'nav.compare': 'Comparar',
     'nav.logout': 'Salir',
     'nav.open_menu': 'Abrir menú',
 
@@ -361,6 +412,50 @@ const translations = {
     'lang.es': 'Español',
     'lang.en': 'English',
     'lang.pl': 'Polski',
+
+    'nav.stats': 'Estadísticas',
+
+    'dashboards.all_tags': 'Todos',
+
+    'detail.orientation_label': 'Orientación',
+    'detail.orientation_portrait': 'Vertical',
+    'detail.orientation_landscape': 'Horizontal',
+    'detail.panel_columns_label': 'Columnas de panel',
+    'detail.column': 'columna',
+    'detail.columns': 'columnas',
+    'detail.watermark_label': 'Marca de agua',
+    'detail.watermark_placeholder': 'CONFIDENCIAL, BORRADOR...',
+    'detail.toc_label': 'Tabla de contenidos',
+    'detail.data_tables_label': 'Incluir tablas de datos',
+    'detail.comparison_from_label': 'Comparación desde',
+    'detail.comparison_to_label': 'Comparación hasta',
+    'detail.toast_generating': 'Se ha iniciado la generación del PDF',
+    'detail.toast_completed': '¡PDF generado correctamente!',
+    'detail.toast_failed': 'Error al generar el PDF',
+
+    'reports.preview': 'Vista previa',
+    'reports.preview_error': 'Error al cargar la vista previa',
+
+    'stats.title': 'Estadísticas',
+    'stats.subtitle': 'Resumen de generación de informes',
+    'stats.total_reports': 'Total informes',
+    'stats.completed': 'Completados',
+    'stats.total_size': 'Tamaño total',
+    'stats.avg_size': 'Tamaño medio',
+    'stats.by_status': 'Por estado',
+    'stats.top_dashboards': 'Top dashboards',
+    'stats.no_data': 'Sin datos',
+    'stats.report_singular': 'informe',
+    'stats.report_plural': 'informes',
+    'stats.error': 'Error al cargar estadísticas',
+
+    // Compare
+    'compare.title': 'Comparar informes',
+    'compare.select_report': 'Selecciona un informe...',
+    'compare.report_a': 'Informe A',
+    'compare.report_b': 'Informe B',
+    'compare.select_to_preview': 'Selecciona un informe para ver la vista previa',
+    'detail.drag_hint': 'Arrastra para reordenar',
   },
 
   // ── English ──────────────────────────────────────────────────────────
@@ -387,6 +482,7 @@ const translations = {
     'nav.dashboards': 'Dashboards',
     'nav.reports': 'Reports',
     'nav.templates': 'Templates',
+    'nav.compare': 'Compare',
     'nav.logout': 'Logout',
     'nav.open_menu': 'Open menu',
 
@@ -535,6 +631,50 @@ const translations = {
     'lang.es': 'Español',
     'lang.en': 'English',
     'lang.pl': 'Polski',
+
+    'nav.stats': 'Statistics',
+
+    'dashboards.all_tags': 'All',
+
+    'detail.orientation_label': 'Orientation',
+    'detail.orientation_portrait': 'Portrait',
+    'detail.orientation_landscape': 'Landscape',
+    'detail.panel_columns_label': 'Panel columns',
+    'detail.column': 'column',
+    'detail.columns': 'columns',
+    'detail.watermark_label': 'Watermark',
+    'detail.watermark_placeholder': 'CONFIDENTIAL, DRAFT...',
+    'detail.toc_label': 'Table of contents',
+    'detail.data_tables_label': 'Include data tables',
+    'detail.comparison_from_label': 'Comparison from',
+    'detail.comparison_to_label': 'Comparison to',
+    'detail.toast_generating': 'PDF generation started',
+    'detail.toast_completed': 'PDF generated successfully!',
+    'detail.toast_failed': 'Error generating PDF',
+
+    'reports.preview': 'Preview',
+    'reports.preview_error': 'Error loading preview',
+
+    'stats.title': 'Statistics',
+    'stats.subtitle': 'Report generation summary',
+    'stats.total_reports': 'Total reports',
+    'stats.completed': 'Completed',
+    'stats.total_size': 'Total size',
+    'stats.avg_size': 'Average size',
+    'stats.by_status': 'By status',
+    'stats.top_dashboards': 'Top dashboards',
+    'stats.no_data': 'No data',
+    'stats.report_singular': 'report',
+    'stats.report_plural': 'reports',
+    'stats.error': 'Error loading statistics',
+
+    // Compare
+    'compare.title': 'Compare reports',
+    'compare.select_report': 'Select a report...',
+    'compare.report_a': 'Report A',
+    'compare.report_b': 'Report B',
+    'compare.select_to_preview': 'Select a report to preview',
+    'detail.drag_hint': 'Drag to reorder',
   },
 
   // ── Polish ───────────────────────────────────────────────────────────
@@ -561,6 +701,7 @@ const translations = {
     'nav.dashboards': 'Dashboardy',
     'nav.reports': 'Raporty',
     'nav.templates': 'Szablony',
+    'nav.compare': 'Porównaj',
     'nav.logout': 'Wyloguj',
     'nav.open_menu': 'Otwórz menu',
 
@@ -704,6 +845,47 @@ const translations = {
     'notfound.title': 'Strona nie znaleziona',
     'notfound.subtitle': 'Strona, której szukasz, nie istnieje lub została przeniesiona.',
     'notfound.back': 'Wróć na stronę główną',
+
+    // Sprint 6 – Frontend Improvements
+    'nav.stats': 'Statystyki',
+    'dashboards.all_tags': 'Wszystkie',
+    'detail.orientation_label': 'Orientacja',
+    'detail.orientation_portrait': 'Pionowa',
+    'detail.orientation_landscape': 'Pozioma',
+    'detail.panel_columns_label': 'Kolumny panelu',
+    'detail.column': 'kolumna',
+    'detail.columns': 'kolumny',
+    'detail.watermark_label': 'Znak wodny',
+    'detail.watermark_placeholder': 'POUFNE, SZKIC...',
+    'detail.toc_label': 'Spis treści',
+    'detail.data_tables_label': 'Dołącz tabele danych',
+    'detail.comparison_from_label': 'Porównanie od',
+    'detail.comparison_to_label': 'Porównanie do',
+    'detail.toast_generating': 'Rozpoczęto generowanie PDF',
+    'detail.toast_completed': 'PDF wygenerowany pomyślnie!',
+    'detail.toast_failed': 'Błąd generowania PDF',
+    'reports.preview': 'Podgląd',
+    'reports.preview_error': 'Błąd ładowania podglądu',
+    'stats.title': 'Statystyki',
+    'stats.subtitle': 'Metryki i analizy generowania raportów',
+    'stats.total_reports': 'Łączna liczba raportów',
+    'stats.completed': 'Ukończone',
+    'stats.total_size': 'Łączny rozmiar',
+    'stats.avg_size': 'Średni rozmiar',
+    'stats.by_status': 'Według statusu',
+    'stats.top_dashboards': 'Najpopularniejsze dashboardy',
+    'stats.no_data': 'Brak danych',
+    'stats.report_singular': 'raport',
+    'stats.report_plural': 'raporty',
+    'stats.error': 'Błąd ładowania statystyk',
+
+    // Compare
+    'compare.title': 'Porównaj raporty',
+    'compare.select_report': 'Wybierz raport...',
+    'compare.report_a': 'Raport A',
+    'compare.report_b': 'Raport B',
+    'compare.select_to_preview': 'Wybierz raport do podglądu',
+    'detail.drag_hint': 'Przeciągnij, aby zmienić kolejność',
 
     'lang.ca': 'Català',
     'lang.es': 'Español',

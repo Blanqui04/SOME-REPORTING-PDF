@@ -7,16 +7,16 @@ export default function DashboardCard({ dashboard }) {
   return (
     <Link
       to={`/dashboards/${dashboard.uid}`}
-      className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 p-6 hover:border-primary-200 group"
+      className="block bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 dark:border-gray-700 p-6 hover:border-primary-200 dark:hover:border-primary-700 group"
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold text-gray-900 truncate group-hover:text-primary-700 transition-colors">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
             {dashboard.title}
           </h3>
         </div>
         <svg
-          className="h-5 w-5 text-gray-400 group-hover:text-primary-500 ml-2 flex-shrink-0 transition-colors"
+          className="h-5 w-5 text-gray-400 dark:text-gray-500 group-hover:text-primary-500 dark:group-hover:text-primary-400 ml-2 flex-shrink-0 transition-colors"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={2}
@@ -35,7 +35,7 @@ export default function DashboardCard({ dashboard }) {
           {dashboard.tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-700"
+              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300"
             >
               {tag}
             </span>
@@ -43,7 +43,7 @@ export default function DashboardCard({ dashboard }) {
         </div>
       )}
 
-      <p className="mt-4 text-sm text-gray-500">
+      <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
         {t('dashboards.click_to_select')}
       </p>
     </Link>

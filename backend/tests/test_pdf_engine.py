@@ -278,7 +278,7 @@ class TestPDFEngineI18n:
         from backend.app.core.i18n import get_translations
 
         tr = get_translations("en")
-        template_vars = {
+        template_vars: dict[str, object] = {
             "report_title": "Test",
             "dashboard_title": "Dash",
             "dashboard_uid": "uid",

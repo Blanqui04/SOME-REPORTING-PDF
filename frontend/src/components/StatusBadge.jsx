@@ -4,10 +4,10 @@ export default function StatusBadge({ status }) {
   const { t } = useLanguage()
 
   const config = {
-    pending:    { classes: 'bg-yellow-100 text-yellow-800' },
-    generating: { classes: 'bg-blue-100 text-blue-800' },
-    completed:  { classes: 'bg-green-100 text-green-800' },
-    failed:     { classes: 'bg-red-100 text-red-800' },
+    pending:    { classes: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300' },
+    generating: { classes: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300' },
+    completed:  { classes: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300' },
+    failed:     { classes: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300' },
   }
 
   const label = t(`status.${status}`) !== `status.${status}`

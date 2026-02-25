@@ -63,6 +63,9 @@ export const downloadReportAPI = (id) =>
 export const deleteReportAPI = (id) =>
   client.delete(`/reports/${id}`)
 
+export const getReportStatsAPI = () =>
+  client.get('/reports/stats')
+
 export const registerAPI = (data) =>
   client.post('/auth/register', data)
 

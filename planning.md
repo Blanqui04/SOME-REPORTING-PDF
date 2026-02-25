@@ -1,7 +1,7 @@
 # Planning: Grafana PDF Reporter
 
-**Versió:** 2.0.0  
-**Estat:** En execució  
+**Versió:** 5.0.0  
+**Estat:** Complet  
 **Data:** 2026-02-24  
 **Autor:** Magicinfo
 
@@ -27,8 +27,8 @@ Desenvolupar una aplicació web que:
 | 2. Core Backend | ✅ Complet | Auth JWT, GrafanaClient, endpoints CRUD |
 | 3. PDF Engine | ✅ Complet | Jinja2 + WeasyPrint, templates CSS |
 | 4. Frontend mínim | ✅ Complet | React + Vite + Tailwind, login/dashboards/reports |
-| 5. Automatització | ❌ Pendent | Scheduler, email — model stub creat |
-| 6. Hardening | 🟡 Parcial | Tests OK (41 passed), CI OK, docs parcials |
+| 5. Automatització | ✅ Complet | Celery+Redis, schedules, email, webhook |
+| 6. Hardening | ✅ Complet | 128 tests, RBAC, audit, rate limit, CI OK |
 
 ---
 
@@ -38,38 +38,38 @@ Desenvolupar una aplicació web que:
 
 | # | Tasca | Prioritat | Estat |
 |---|-------|-----------|-------|
-| A1 | Eliminar --reload del Dockerfile CMD | 🔴 Alta | ⬜ |
-| A2 | Afegir usuari non-root al Dockerfile | 🔴 Alta | ⬜ |
-| A3 | Crear .dockerignore | 🔴 Alta | ⬜ |
-| A4 | GrafanaClient com singleton amb tancament al lifespan | 🔴 Alta | ⬜ |
+| A1 | Eliminar --reload del Dockerfile CMD | 🔴 Alta | ✅ |
+| A2 | Afegir usuari non-root al Dockerfile | 🔴 Alta | ✅ |
+| A3 | Crear .dockerignore | 🔴 Alta | ✅ |
+| A4 | GrafanaClient com singleton amb tancament al lifespan | 🔴 Alta | ✅ |
 
 ### Fase B — Backend Features
 
 | # | Tasca | Prioritat | Estat |
 |---|-------|-----------|-------|
-| B1 | Endpoint DELETE /api/v1/reports/{id} | 🔴 Alta | ⬜ |
-| B2 | Migració: índexs + ON DELETE CASCADE | 🔴 Alta | ⬜ |
-| B3 | Request ID middleware per traçabilitat | 🟡 Mitjana | ⬜ |
-| B4 | Timeout a generate_report_task | 🟡 Mitjana | ⬜ |
-| B5 | Alembic compare_type=True | 🟡 Mitjana | ⬜ |
+| B1 | Endpoint DELETE /api/v1/reports/{id} | 🔴 Alta | ✅ |
+| B2 | Migració: índexs + ON DELETE CASCADE | 🔴 Alta | ✅ |
+| B3 | Request ID middleware per traçabilitat | 🟡 Mitjana | ✅ |
+| B4 | Timeout a generate_report_task | 🟡 Mitjana | ✅ |
+| B5 | Alembic compare_type=True | 🟡 Mitjana | ✅ |
 
 ### Fase C — Frontend
 
 | # | Tasca | Prioritat | Estat |
 |---|-------|-----------|-------|
-| C1 | Corregir errors silenciats a ReportsPage/ReportRow | 🔴 Alta | ⬜ |
-| C2 | Ruta 404 catch-all amb pàgina d'error | 🔴 Alta | ⬜ |
-| C3 | Formulari d'opcions al generar report | 🟡 Mitjana | ⬜ |
-| C4 | Pàgina de registre d'usuaris | 🟡 Mitjana | ⬜ |
-| C5 | Navegació responsive (hamburger mòbil) | 🟡 Mitjana | ⬜ |
-| C6 | Axios timeout + router redirect 401 | 🟡 Mitjana | ⬜ |
+| C1 | Corregir errors silenciats a ReportsPage/ReportRow | 🔴 Alta | ✅ |
+| C2 | Ruta 404 catch-all amb pàgina d'error | 🔴 Alta | ✅ |
+| C3 | Formulari d'opcions al generar report | 🟡 Mitjana | ✅ |
+| C4 | Pàgina de registre d'usuaris | 🟡 Mitjana | ✅ |
+| C5 | Navegació responsive (hamburger mòbil) | 🟡 Mitjana | ✅ |
+| C6 | Axios timeout + router redirect 401 | 🟡 Mitjana | ✅ |
 
 ### Fase D — Qualitat
 
 | # | Tasca | Prioritat | Estat |
 |---|-------|-----------|-------|
-| D1 | Tests unitaris per security.py | 🟡 Mitjana | ⬜ |
-| D2 | Validació final: tests + ruff + mypy | 🔴 Alta | ⬜ |
+| D1 | Tests unitaris per security.py | 🟡 Mitjana | ✅ |
+| D2 | Validació final: tests + ruff + mypy | 🔴 Alta | ✅ |
 
 ---
 
@@ -77,11 +77,14 @@ Desenvolupar una aplicació web que:
 
 ```
 User → Frontend (React/Vite) → Backend (FastAPI)
-                                    ├── Auth (JWT)
+                                    ├── Auth (JWT + LDAP + TOTP 2FA)
                                     ├── GrafanaClient (httpx → Grafana API)
-                                    ├── PDF Engine (Jinja2 + WeasyPrint)
+                                    ├── PDF Engine (Jinja2 + WeasyPrint + pypdf)
                                     ├── Report Service → PostgreSQL
-                                    └── [Pendent] Scheduler (APScheduler)
+                                    ├── Celery + Redis (background tasks + cache)
+                                    ├── Notifications (Slack / Teams webhooks)
+                                    ├── Storage (S3 / MinIO)
+                                    └── Prometheus Metrics
 ```
 
 ---
@@ -90,12 +93,12 @@ User → Frontend (React/Vite) → Backend (FastAPI)
 
 | Mètrica | Actual | Objectiu |
 |---------|--------|----------|
-| Tests backend | 41 passed | 50+ passed |
+| Tests backend | 230 passed | 50+ passed |
 | Ruff | 0 errors | 0 errors |
-| Mypy | 0 errors | 0 errors |
-| .dockerignore | ❌ | ✅ |
-| Non-root Docker | ❌ | ✅ |
-| Singleton GrafanaClient | ❌ | ✅ |
-| DELETE reports | ❌ | ✅ |
-| Frontend 404 | ❌ | ✅ |
-| Request ID logs | ❌ | ✅ |
+| Mypy | 0 errors (80 source files) | 0 errors |
+| .dockerignore | ✅ | ✅ |
+| Non-root Docker | ✅ | ✅ |
+| Singleton GrafanaClient | ✅ | ✅ |
+| DELETE reports | ✅ | ✅ |
+| Frontend 404 | ✅ | ✅ |
+| Request ID logs | ✅ | ✅ |

@@ -19,6 +19,15 @@ class ReportGenerateRequest(BaseModel):
         time_range_to: Grafana time range end (e.g. 'now').
         width: Panel image width in pixels.
         height: Panel image height in pixels.
+        template_id: PDF template UUID for branding.
+        language: Language for PDF labels.
+        orientation: Page orientation (portrait or landscape).
+        toc_enabled: Whether to include a Table of Contents.
+        watermark_text: Diagonal watermark text (e.g. 'Confidential').
+        panel_columns: Number of panel columns (1=full width, 2=side by side).
+        include_data_tables: Whether to include raw data tables as annex.
+        comparison_time_from: Comparison period B start (enables comparison mode).
+        comparison_time_to: Comparison period B end.
     """
 
     dashboard_uid: str = Field(..., min_length=1, max_length=100)
@@ -34,6 +43,60 @@ class ReportGenerateRequest(BaseModel):
         default="ca",
         description="Language for PDF labels: ca (Catalan), es (Spanish), en (English), pl (Polish)",
     )
+    # Sprint 5: PDF engine enhancements
+    orientation: Literal["portrait", "landscape"] = Field(
+        default="portrait",
+        description="Page orientation: portrait or landscape",
+    )
+    toc_enabled: bool = Field(
+        default=False,
+        description="Include Table of Contents page with panel links",
+    )
+    watermark_text: str | None = Field(
+        default=None,
+        max_length=100,
+        description="Diagonal watermark text (e.g. 'Confidential', 'Draft')",
+    )
+    panel_columns: int = Field(
+        default=1,
+        ge=1,
+        le=2,
+        description="Panel grid columns: 1 (full width) or 2 (side by side)",
+    )
+    include_data_tables: bool = Field(
+        default=False,
+        description="Include raw panel data as table annex in PDF",
+    )
+    comparison_time_from: str | None = Field(
+        default=None,
+        description="Comparison period B start (enables temporal comparison mode)",
+    )
+    comparison_time_to: str | None = Field(
+        default=None,
+        description="Comparison period B end",
+    )
+
+
+class BatchGenerateRequest(BaseModel):
+    """Schema for batch report generation across multiple dashboards.
+
+    Attributes:
+        dashboard_uids: List of dashboard UIDs to generate reports for.
+        panel_ids: Panel IDs to include (applied to all dashboards).
+        time_range_from: Grafana time range start.
+        time_range_to: Grafana time range end.
+        language: Language for PDF labels.
+        orientation: Page orientation.
+    """
+
+    dashboard_uids: list[str] = Field(..., min_length=1, max_length=50)
+    panel_ids: list[int] = Field(default_factory=list)
+    time_range_from: str = Field(default="now-6h")
+    time_range_to: str = Field(default="now")
+    width: int = Field(default=1000, ge=100, le=4000)
+    height: int = Field(default=500, ge=100, le=4000)
+    language: Literal["ca", "es", "en", "pl"] = Field(default="ca")
+    orientation: Literal["portrait", "landscape"] = Field(default="portrait")
 
 
 class ReportResponse(BaseModel):

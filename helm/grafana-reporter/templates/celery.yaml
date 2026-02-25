@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "grafana-reporter.fullname" . }}-worker
+  labels:
+    {{- include "grafana-reporter.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+spec:
+  replicas: {{ .Values.celery.worker.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "grafana-reporter.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        {{- include "grafana-reporter.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: worker
+    spec:
+      containers:
+        - name: celery-worker
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - celery
+            - -A
+            - backend.app.celery_app:celery_app
+            - worker
+            - --loglevel=info
+            - --concurrency={{ .Values.celery.worker.concurrency }}
+            - -Q
+            - default,reports
+          env:
+            - name: POSTGRES_HOST
+              value: "{{ include "grafana-reporter.fullname" . }}-postgresql"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "grafana-reporter.fullname" . }}-secret
+                  key: postgres-password
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "grafana-reporter.fullname" . }}-secret
+                  key: jwt-secret-key
+            - name: REDIS_URL
+              value: "redis://{{ include "grafana-reporter.fullname" . }}-redis-master:6379/0"
+            - name: CELERY_BROKER_URL
+              value: "redis://{{ include "grafana-reporter.fullname" . }}-redis-master:6379/1"
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+---
+{{- if .Values.celery.beat.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "grafana-reporter.fullname" . }}-beat
+  labels:
+    {{- include "grafana-reporter.labels" . | nindent 4 }}
+    app.kubernetes.io/component: beat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "grafana-reporter.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: beat
+  template:
+    metadata:
+      labels:
+        {{- include "grafana-reporter.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: beat
+    spec:
+      containers:
+        - name: celery-beat
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - celery
+            - -A
+            - backend.app.celery_app:celery_app
+            - beat
+            - --loglevel=info
+          env:
+            - name: REDIS_URL
+              value: "redis://{{ include "grafana-reporter.fullname" . }}-redis-master:6379/0"
+            - name: CELERY_BROKER_URL
+              value: "redis://{{ include "grafana-reporter.fullname" . }}-redis-master:6379/1"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "grafana-reporter.fullname" . }}-secret
+                  key: postgres-password
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "grafana-reporter.fullname" . }}-secret
+                  key: jwt-secret-key
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+{{- end }}

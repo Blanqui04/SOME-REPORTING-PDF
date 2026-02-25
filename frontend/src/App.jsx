@@ -6,7 +6,9 @@ import RegisterPage from './pages/RegisterPage'
 import DashboardsPage from './pages/DashboardsPage'
 import DashboardDetailPage from './pages/DashboardDetailPage'
 import ReportsPage from './pages/ReportsPage'
+import StatsPage from './pages/StatsPage'
 import TemplatesPage from './pages/TemplatesPage'
+import CompareReportsPage from './pages/CompareReportsPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 export default function App() {
@@ -20,7 +22,9 @@ export default function App() {
           <Route path="/dashboards" element={<DashboardsPage />} />
           <Route path="/dashboards/:uid" element={<DashboardDetailPage />} />
           <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/stats" element={<StatsPage />} />
           <Route path="/templates" element={<TemplatesPage />} />
+          <Route path="/compare" element={<CompareReportsPage />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFoundPage />} />
