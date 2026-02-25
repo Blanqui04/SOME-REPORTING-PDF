@@ -1,9 +1,14 @@
+import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
+import LanguageSelector from './LanguageSelector'
 
 export default function Layout() {
   const { user, logout } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -41,25 +46,84 @@ export default function Layout() {
               </span>
             </div>
 
-            <div className="flex items-center space-x-1">
+            {/* Desktop nav */}
+            <div className="hidden sm:flex items-center space-x-1">
               <NavLink to="/dashboards" className={linkClass}>
-                Dashboards
+                {t('nav.dashboards')}
               </NavLink>
               <NavLink to="/reports" className={linkClass}>
-                Informes
+                {t('nav.reports')}
+              </NavLink>
+              <NavLink to="/templates" className={linkClass}>
+                {t('nav.templates')}
               </NavLink>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="hidden sm:flex items-center space-x-4">
+              <LanguageSelector />
               <span className="text-sm text-gray-600">{user?.username}</span>
               <button
                 onClick={handleLogout}
                 className="text-sm text-red-600 hover:text-red-800 font-medium transition-colors"
               >
-                Salir
+                {t('nav.logout')}
               </button>
             </div>
+
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="sm:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+              aria-label={t('nav.open_menu')}
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                {menuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                )}
+              </svg>
+            </button>
           </div>
+
+          {/* Mobile menu */}
+          {menuOpen && (
+            <div className="sm:hidden border-t border-gray-200 py-3 space-y-1">
+              <NavLink
+                to="/dashboards"
+                className={linkClass}
+                onClick={() => setMenuOpen(false)}
+              >
+                {t('nav.dashboards')}
+              </NavLink>
+              <NavLink
+                to="/reports"
+                className={linkClass}
+                onClick={() => setMenuOpen(false)}
+              >
+                {t('nav.reports')}
+              </NavLink>
+              <NavLink
+                to="/templates"
+                className={linkClass}
+                onClick={() => setMenuOpen(false)}
+              >
+                {t('nav.templates')}
+              </NavLink>
+              <div className="px-4 pt-2">
+                <LanguageSelector className="w-full" />
+              </div>
+              <div className="flex items-center justify-between px-4 pt-2 border-t border-gray-100 mt-2">
+                <span className="text-sm text-gray-600">{user?.username}</span>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-red-600 hover:text-red-800 font-medium"
+                >
+                  {t('nav.logout')}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 

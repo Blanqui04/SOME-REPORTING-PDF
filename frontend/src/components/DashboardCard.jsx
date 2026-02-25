@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function DashboardCard({ dashboard }) {
+  const { t } = useLanguage()
+
   return (
     <Link
       to={`/dashboards/${dashboard.uid}`}
@@ -41,7 +44,7 @@ export default function DashboardCard({ dashboard }) {
       )}
 
       <p className="mt-4 text-sm text-gray-500">
-        Haz clic para seleccionar paneles
+        {t('dashboards.click_to_select')}
       </p>
     </Link>
   )

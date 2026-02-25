@@ -80,6 +80,8 @@ def generate_report(
         request_params={
             "width": request.width,
             "height": request.height,
+            "template_id": request.template_id,
+            "language": request.language,
         },
     )
 
@@ -170,3 +172,20 @@ def download_report(
             "Content-Disposition": f'attachment; filename="{report.file_name}"',
         },
     )
+
+
+@router.delete("/{report_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_report(
+    report_id: uuid.UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> None:
+    """Delete a report by ID.
+
+    Args:
+        report_id: Report UUID.
+        current_user: Authenticated user.
+        db: Database session.
+    """
+    service = ReportService(db)
+    service.delete_report(user_id=current_user.id, report_id=report_id)

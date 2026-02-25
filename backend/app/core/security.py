@@ -2,6 +2,7 @@
 
 import logging
 from datetime import UTC, datetime, timedelta
+from typing import Any, cast
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -22,7 +23,7 @@ def hash_password(password: str) -> str:
     Returns:
         The bcrypt-hashed password string.
     """
-    return pwd_context.hash(password)
+    return cast(str, pwd_context.hash(password))
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -35,7 +36,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         True if the password matches, False otherwise.
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    return cast(bool, pwd_context.verify(plain_password, hashed_password))
 
 
 def create_access_token(
@@ -60,7 +61,7 @@ def create_access_token(
 
     expire = datetime.now(UTC) + expires_delta
     to_encode = {"sub": subject, "exp": expire}
-    encoded_jwt = jwt.encode(to_encode, secret_key, algorithm=algorithm)
+    encoded_jwt = cast(str, jwt.encode(to_encode, secret_key, algorithm=algorithm))
     return encoded_jwt
 
 
@@ -83,7 +84,7 @@ def decode_access_token(
         AuthenticationError: If the token is invalid or expired.
     """
     try:
-        payload = jwt.decode(token, secret_key, algorithms=[algorithm])
+        payload = cast(dict[str, Any], jwt.decode(token, secret_key, algorithms=[algorithm]))
         subject: str | None = payload.get("sub")
         if subject is None:
             raise AuthenticationError("Token missing subject claim")

@@ -76,16 +76,23 @@ class PDFRenderError(AppError):
         super().__init__(f"PDF rendering failed: {message}", status_code=500)
 
 
-def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
+def app_error_handler(request: Request, exc: Exception) -> JSONResponse:
     """Handle AppError exceptions and return a JSON response.
 
     Args:
         request: The incoming HTTP request.
-        exc: The AppError exception instance.
+        exc: Exception instance (expected to be AppError).
 
     Returns:
         JSONResponse with appropriate status code and error detail.
     """
+    if not isinstance(exc, AppError):
+        logger.error("Unhandled exception in app_error_handler: %s", exc)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal server error"},
+        )
+
     logger.error("AppError [%d]: %s", exc.status_code, exc.message)
     return JSONResponse(
         status_code=exc.status_code,

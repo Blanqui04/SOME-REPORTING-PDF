@@ -70,6 +70,42 @@ class TestGenerateReport:
         assert data["title"] == "Custom Report Title"
         assert data["description"] == "A test report"
 
+    def test_generate_report_with_language(self, authenticated_client: TestClient) -> None:
+        """Report generation with language parameter is accepted."""
+        for lang in ["ca", "es", "en", "pl"]:
+            response = authenticated_client.post(
+                "/api/v1/reports/generate",
+                json={
+                    "dashboard_uid": "test-dash-1",
+                    "panel_ids": [1, 2],
+                    "language": lang,
+                },
+            )
+            assert response.status_code == 202, f"Failed for language '{lang}'"
+
+    def test_generate_report_invalid_language(self, authenticated_client: TestClient) -> None:
+        """Invalid language code returns 422 validation error."""
+        response = authenticated_client.post(
+            "/api/v1/reports/generate",
+            json={
+                "dashboard_uid": "test-dash-1",
+                "panel_ids": [1],
+                "language": "xx",
+            },
+        )
+        assert response.status_code == 422
+
+    def test_generate_report_default_language(self, authenticated_client: TestClient) -> None:
+        """Report without explicit language defaults to 'ca'."""
+        response = authenticated_client.post(
+            "/api/v1/reports/generate",
+            json={
+                "dashboard_uid": "test-dash-1",
+                "panel_ids": [1],
+            },
+        )
+        assert response.status_code == 202
+
     def test_generate_report_unauthenticated(self, client: TestClient) -> None:
         """Unauthenticated report generation returns 401."""
         response = client.post(

@@ -1,18 +1,12 @@
-const typeLabels = {
-  graph: 'Grafico',
-  timeseries: 'Serie temporal',
-  table: 'Tabla',
-  stat: 'Estadistica',
-  gauge: 'Indicador',
-  barchart: 'Barras',
-  piechart: 'Circular',
-  text: 'Texto',
-  bargauge: 'Barra indicador',
-  heatmap: 'Mapa de calor',
-  geomap: 'Mapa',
-}
+import { useLanguage } from '../context/LanguageContext'
 
 export default function PanelCard({ panel, selected, onToggle }) {
+  const { t } = useLanguage()
+
+  const typeLabel = t(`panel.${panel.type}`) !== `panel.${panel.type}`
+    ? t(`panel.${panel.type}`)
+    : panel.type
+
   return (
     <button
       onClick={onToggle}
@@ -26,7 +20,7 @@ export default function PanelCard({ panel, selected, onToggle }) {
         <div className="flex-1 min-w-0">
           <p className="font-medium text-gray-900 truncate">{panel.title}</p>
           <span className="inline-block mt-1.5 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-            {typeLabels[panel.type] || panel.type}
+            {typeLabel}
           </span>
         </div>
         <div

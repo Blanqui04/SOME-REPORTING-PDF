@@ -1,6 +1,7 @@
 """Grafana HTTP API client wrapper."""
 
 import logging
+from typing import Any, cast
 
 import httpx
 
@@ -33,7 +34,7 @@ class GrafanaClient:
             timeout=timeout,
         )
 
-    def list_dashboards(self, search: str | None = None) -> list[dict]:
+    def list_dashboards(self, search: str | None = None) -> list[dict[str, Any]]:
         """List dashboards from Grafana Search API.
 
         Calls GET /api/search?type=dash-db&query={search}
@@ -53,9 +54,9 @@ class GrafanaClient:
             params["query"] = search
 
         response = self._request("GET", "/api/search", params=params)
-        return response.json()
+        return cast(list[dict[str, Any]], response.json())
 
-    def get_dashboard(self, uid: str) -> dict:
+    def get_dashboard(self, uid: str) -> dict[str, Any]:
         """Get full dashboard details by UID.
 
         Calls GET /api/dashboards/uid/{uid}
@@ -71,7 +72,7 @@ class GrafanaClient:
             GrafanaConnectionError: If Grafana is unreachable.
         """
         response = self._request("GET", f"/api/dashboards/uid/{uid}")
-        return response.json()
+        return cast(dict[str, Any], response.json())
 
     def render_panel(
         self,
@@ -85,6 +86,8 @@ class GrafanaClient:
         """Render a panel as PNG image via Grafana Render API.
 
         Calls GET /render/d-solo/{uid}?panelId={panel_id}&width=...&height=...&from=...&to=...
+        Appends a cache-buster timestamp to force a fresh render of the
+        current dashboard state.
 
         Args:
             dashboard_uid: Dashboard UID containing the panel.
@@ -101,12 +104,15 @@ class GrafanaClient:
             GrafanaNotFoundError: If panel or dashboard not found.
             GrafanaAPIError: If rendering fails.
         """
+        import time
+
         params = {
             "panelId": str(panel_id),
             "width": str(width),
             "height": str(height),
             "from": from_time,
             "to": to_time,
+            "_cb": str(int(time.time() * 1000)),  # cache-buster for fresh render
         }
         response = self._request("GET", f"/render/d-solo/{dashboard_uid}", params=params)
         return response.content

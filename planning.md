@@ -1,50 +1,101 @@
 # Planning: Grafana PDF Reporter
 
-**Versió:** 1.0.0  
-**Estat:** Draft  
-**Data:** 2026-03-01  
+**Versió:** 2.0.0  
+**Estat:** En execució  
+**Data:** 2026-02-24  
 **Autor:** Magicinfo
+
+---
 
 ## 🎯 Objectiu del Projecte
 
 Desenvolupar una aplicació web que:
 
-1. **Consumi dades de Grafana** via HTTP API (sense dependre de la funcionalitat nativa de reporting).
-2. **Generi reports PDF personalitzats** amb plantilles configurables (format SOME*).
+1. **Consumi dades de Grafana** via HTTP API (sense dependre del reporting natiu).
+2. **Generi reports PDF personalitzats** amb plantilles configurables.
 3. **Automatitzi la generació** (programació periòdica o trigger manual).
 4. **Gestioni autenticació d'usuaris** i permisos per a dashboards.
-5. **Estigui preparat per a desplegament** en un repositori dedicat de GitHub.
-
-> *\*Nota: Confirmar especificacions del format "SOME" amb l'equip.*
+5. **Estigui preparat per a desplegament** amb Docker i CI/CD.
 
 ---
 
-## 🗓️ Cronograma per Fases
+## 🗓️ Estat de les Fases Originals
 
-| Fase | Durada | Deliverables | Tasques Clau |
-|------|--------|-------------|--------------|
-| **1. Setup** | 2 dies | Repo, Docker, envs | `docker-compose.yml`, estructura de carpetes, variables d'entorn (.env), CI bàsic |
-| **2. Core Backend** | 4 dies | API funcional | Auth (JWT), `GrafanaClient` wrapper, endpoint `/api/reports/generate`, logs |
-| **3. PDF Engine** | 3 dies | Templates Jinja2, generació PDF | Integració WeasyPrint, CSS per a impressió, gestió d'imatges (panells), metadades dinàmiques |
-| **4. Frontend mínim** | 3 dies | UI configuració reports | Form per seleccionar dashboard/panells, freqüència, destinataris; llistat de reports generats |
-| **5. Automatització** | 2 dies | Scheduler, webhooks | APScheduler/Celery per execució periòdica, notificacions email, emmagatzematge (S3/local) |
-| **6. Hardening** | 2 dies | Tests, docs, deploy | Tests unitaris/integració, documentació API (OpenAPI), secrets management, README |
+| Fase | Estat | Notes |
+|------|-------|-------|
+| 1. Setup | ✅ Complet | Repo, Docker, CI amb GitHub Actions |
+| 2. Core Backend | ✅ Complet | Auth JWT, GrafanaClient, endpoints CRUD |
+| 3. PDF Engine | ✅ Complet | Jinja2 + WeasyPrint, templates CSS |
+| 4. Frontend mínim | ✅ Complet | React + Vite + Tailwind, login/dashboards/reports |
+| 5. Automatització | ❌ Pendent | Scheduler, email — model stub creat |
+| 6. Hardening | 🟡 Parcial | Tests OK (41 passed), CI OK, docs parcials |
+
+---
+
+## 📋 Pla de Millores (Sprint Actual)
+
+### Fase A — Seguretat i Infraestructura
+
+| # | Tasca | Prioritat | Estat |
+|---|-------|-----------|-------|
+| A1 | Eliminar --reload del Dockerfile CMD | 🔴 Alta | ⬜ |
+| A2 | Afegir usuari non-root al Dockerfile | 🔴 Alta | ⬜ |
+| A3 | Crear .dockerignore | 🔴 Alta | ⬜ |
+| A4 | GrafanaClient com singleton amb tancament al lifespan | 🔴 Alta | ⬜ |
+
+### Fase B — Backend Features
+
+| # | Tasca | Prioritat | Estat |
+|---|-------|-----------|-------|
+| B1 | Endpoint DELETE /api/v1/reports/{id} | 🔴 Alta | ⬜ |
+| B2 | Migració: índexs + ON DELETE CASCADE | 🔴 Alta | ⬜ |
+| B3 | Request ID middleware per traçabilitat | 🟡 Mitjana | ⬜ |
+| B4 | Timeout a generate_report_task | 🟡 Mitjana | ⬜ |
+| B5 | Alembic compare_type=True | 🟡 Mitjana | ⬜ |
+
+### Fase C — Frontend
+
+| # | Tasca | Prioritat | Estat |
+|---|-------|-----------|-------|
+| C1 | Corregir errors silenciats a ReportsPage/ReportRow | 🔴 Alta | ⬜ |
+| C2 | Ruta 404 catch-all amb pàgina d'error | 🔴 Alta | ⬜ |
+| C3 | Formulari d'opcions al generar report | 🟡 Mitjana | ⬜ |
+| C4 | Pàgina de registre d'usuaris | 🟡 Mitjana | ⬜ |
+| C5 | Navegació responsive (hamburger mòbil) | 🟡 Mitjana | ⬜ |
+| C6 | Axios timeout + router redirect 401 | 🟡 Mitjana | ⬜ |
+
+### Fase D — Qualitat
+
+| # | Tasca | Prioritat | Estat |
+|---|-------|-----------|-------|
+| D1 | Tests unitaris per security.py | 🟡 Mitjana | ⬜ |
+| D2 | Validació final: tests + ruff + mypy | 🔴 Alta | ⬜ |
 
 ---
 
 ## 🧱 Arquitectura Tècnica
 
-```mermaid
-flowchart LR
-    User[Usuari] --> Frontend[Frontend: React/HTMX]
-    Frontend --> API[Backend: FastAPI]
-    API --> Auth[Auth: JWT/OAuth2]
-    API --> Grafana[GrafanaClient Service]
-    Grafana --> GrafanaInst[(Grafana API)]
-    API --> PDF[PDF Generator: WeasyPrint+Jinja2]
-    PDF --> Storage[(PostgreSQL/S3)]
-    API --> Scheduler[APScheduler/Celery]
-    Scheduler --> Email[SendGrid/SMTP]
-    
-    style GrafanaInst fill:#e1f5fe
-    style Storage fill:#e8f5e9
+```
+User → Frontend (React/Vite) → Backend (FastAPI)
+                                    ├── Auth (JWT)
+                                    ├── GrafanaClient (httpx → Grafana API)
+                                    ├── PDF Engine (Jinja2 + WeasyPrint)
+                                    ├── Report Service → PostgreSQL
+                                    └── [Pendent] Scheduler (APScheduler)
+```
+
+---
+
+## 📊 Mètriques de Qualitat Objectiu
+
+| Mètrica | Actual | Objectiu |
+|---------|--------|----------|
+| Tests backend | 41 passed | 50+ passed |
+| Ruff | 0 errors | 0 errors |
+| Mypy | 0 errors | 0 errors |
+| .dockerignore | ❌ | ✅ |
+| Non-root Docker | ❌ | ✅ |
+| Singleton GrafanaClient | ❌ | ✅ |
+| DELETE reports | ❌ | ✅ |
+| Frontend 404 | ❌ | ✅ |
+| Request ID logs | ❌ | ✅ |

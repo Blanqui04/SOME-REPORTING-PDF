@@ -16,3 +16,10 @@ htmlcov
 .vscode
 .idea
 docker-compose.override.yml
+node_modules/
+frontend/node_modules/
+backend/tests/
+*.log
+.DS_Store
+Thumbs.db
+.github/

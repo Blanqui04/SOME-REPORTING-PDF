@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getDashboardsAPI } from '../api/client'
+import { useLanguage } from '../context/LanguageContext'
 import DashboardCard from '../components/DashboardCard'
 
 export default function DashboardsPage() {
@@ -8,6 +9,7 @@ export default function DashboardsPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const { t } = useLanguage()
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 400)
@@ -20,17 +22,17 @@ export default function DashboardsPage() {
     getDashboardsAPI(debouncedSearch)
       .then((res) => setDashboards(res.data))
       .catch((err) =>
-        setError(err.response?.data?.detail || 'Error al cargar dashboards')
+        setError(err.response?.data?.detail || t('dashboards.error'))
       )
       .finally(() => setLoading(false))
-  }, [debouncedSearch])
+  }, [debouncedSearch, t])
 
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboards</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('dashboards.title')}</h1>
         <p className="text-gray-500 mt-1">
-          Selecciona un dashboard para generar un informe PDF
+          {t('dashboards.subtitle')}
         </p>
       </div>
 
@@ -53,7 +55,7 @@ export default function DashboardsPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar dashboards..."
+            placeholder={t('dashboards.search_placeholder')}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-base outline-none transition-shadow"
           />
         </div>
@@ -74,7 +76,7 @@ export default function DashboardsPage() {
         </div>
       ) : dashboards.length === 0 ? (
         <div className="text-center py-16 text-gray-500">
-          <p className="text-lg">No se encontraron dashboards</p>
+          <p className="text-lg">{t('dashboards.not_found')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

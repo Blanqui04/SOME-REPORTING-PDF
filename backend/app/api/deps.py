@@ -97,7 +97,10 @@ def get_current_user(
 def get_grafana_client(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> GrafanaClient:
-    """Return a configured GrafanaClient instance.
+    """Return the shared GrafanaClient singleton from app state.
+
+    Falls back to creating a new instance if app state is not available
+    (e.g. during testing).
 
     Args:
         settings: Application settings with Grafana configuration.
@@ -105,6 +108,12 @@ def get_grafana_client(
     Returns:
         GrafanaClient instance connected to the configured Grafana URL.
     """
+    from backend.app.main import app
+
+    client: GrafanaClient | None = getattr(app.state, "grafana_client", None)
+    if client is not None:
+        return client
+
     return GrafanaClient(
         base_url=settings.GRAFANA_URL,
         api_key=settings.GRAFANA_API_KEY,

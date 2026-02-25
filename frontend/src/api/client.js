@@ -3,6 +3,7 @@ import axios from 'axios'
 const client = axios.create({
   baseURL: '/api/v1',
   headers: { 'Content-Type': 'application/json' },
+  timeout: 30000,
 })
 
 client.interceptors.request.use((config) => {
@@ -58,3 +59,40 @@ export const getReportAPI = (id) => client.get(`/reports/${id}`)
 
 export const downloadReportAPI = (id) =>
   client.get(`/reports/${id}/download`, { responseType: 'blob' })
+
+export const deleteReportAPI = (id) =>
+  client.delete(`/reports/${id}`)
+
+export const registerAPI = (data) =>
+  client.post('/auth/register', data)
+
+// --- Templates ---
+export const getTemplatesAPI = () =>
+  client.get('/templates')
+
+export const getTemplateAPI = (id) =>
+  client.get(`/templates/${id}`)
+
+export const createTemplateAPI = (data) =>
+  client.post('/templates', data)
+
+export const updateTemplateAPI = (id, data) =>
+  client.put(`/templates/${id}`, data)
+
+export const deleteTemplateAPI = (id) =>
+  client.delete(`/templates/${id}`)
+
+export const uploadTemplatePDFAPI = (id, data) =>
+  client.post(`/templates/${id}/upload-pdf`, data)
+
+export const uploadTemplatePDFFileAPI = (id, file) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  return client.post(`/templates/${id}/upload-pdf-file`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 120000,
+  })
+}
+
+export const removeTemplatePDFAPI = (id) =>
+  client.delete(`/templates/${id}/base-pdf`)

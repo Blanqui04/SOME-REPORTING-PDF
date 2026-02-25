@@ -1,9 +1,13 @@
 import { useState } from 'react'
 import { downloadReportAPI } from '../api/client'
 import StatusBadge from './StatusBadge'
+import { useLanguage } from '../context/LanguageContext'
 
-function formatDate(isoString) {
-  return new Date(isoString).toLocaleDateString('es-ES', {
+const LOCALE_MAP = { ca: 'ca-ES', es: 'es-ES', en: 'en-GB', pl: 'pl-PL' }
+
+function formatDate(isoString, locale) {
+  const loc = LOCALE_MAP[locale] || 'ca-ES'
+  return new Date(isoString).toLocaleDateString(loc, {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -21,6 +25,7 @@ function formatSize(bytes) {
 
 export default function ReportRow({ report }) {
   const [downloading, setDownloading] = useState(false)
+  const { t, locale } = useLanguage()
 
   const handleDownload = async () => {
     setDownloading(true)
@@ -34,8 +39,8 @@ export default function ReportRow({ report }) {
       a.click()
       a.remove()
       URL.revokeObjectURL(url)
-    } catch {
-      // silent
+    } catch (err) {
+      alert(err.response?.data?.detail || t('reports.download_error'))
     } finally {
       setDownloading(false)
     }
@@ -48,7 +53,7 @@ export default function ReportRow({ report }) {
         <div className="flex items-center mt-1 space-x-2 text-sm text-gray-500 flex-wrap">
           <span>{report.dashboard_title}</span>
           <span>&middot;</span>
-          <span>{formatDate(report.created_at)}</span>
+          <span>{formatDate(report.created_at, locale)}</span>
           {report.pdf_size_bytes && (
             <>
               <span>&middot;</span>
@@ -83,7 +88,7 @@ export default function ReportRow({ report }) {
                 d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
               />
             </svg>
-            <span>{downloading ? '...' : 'Descargar'}</span>
+            <span>{downloading ? t('reports.downloading') : t('reports.download')}</span>
           </button>
         )}
       </div>

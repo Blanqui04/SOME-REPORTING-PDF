@@ -26,7 +26,21 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = _get_settings()
     setup_logging(settings.LOG_LEVEL)
     logger.info("Starting %s v%s", settings.APP_NAME, settings.APP_VERSION)
+
+    # Initialize shared GrafanaClient singleton
+    from backend.app.services.grafana_client import GrafanaClient
+
+    grafana_client = GrafanaClient(
+        base_url=settings.GRAFANA_URL,
+        api_key=settings.GRAFANA_API_KEY,
+        timeout=settings.GRAFANA_TIMEOUT,
+    )
+    app.state.grafana_client = grafana_client
+
     yield
+
+    # Cleanup: close shared GrafanaClient
+    grafana_client.close()
     logger.info("Shutting down %s", settings.APP_NAME)
 
 
@@ -54,6 +68,11 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Request ID middleware
+    from backend.app.core.middleware import RequestIDMiddleware
+
+    application.add_middleware(RequestIDMiddleware)
 
     # Exception handlers
     from backend.app.core.exceptions import AppError, app_error_handler

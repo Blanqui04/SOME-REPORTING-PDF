@@ -4,17 +4,18 @@ import logging
 from collections.abc import Generator
 
 from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from backend.app.core.config import Settings
 
 logger = logging.getLogger(__name__)
 
-_engine = None
+_engine: Engine | None = None
 _SessionLocal: sessionmaker[Session] | None = None
 
 
-def _get_engine(database_url: str) -> object:
+def _get_engine(database_url: str) -> Engine:
     """Create or return the cached SQLAlchemy engine.
 
     Args:

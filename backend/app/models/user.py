@@ -10,6 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from backend.app.models.base import Base, TimestampMixin, UUIDMixin
 
 if TYPE_CHECKING:
+    from backend.app.models.pdf_template import PDFTemplate
     from backend.app.models.report import Report
 
 
@@ -29,3 +30,4 @@ class User(UUIDMixin, TimestampMixin, Base):
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     reports: Mapped[list[Report]] = relationship(back_populates="created_by", lazy="selectin")
+    pdf_templates: Mapped[list[PDFTemplate]] = relationship(back_populates="created_by", lazy="selectin")

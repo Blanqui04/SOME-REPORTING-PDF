@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -28,6 +29,11 @@ class ReportGenerateRequest(BaseModel):
     time_range_to: str = Field(default="now")
     width: int = Field(default=1000, ge=100, le=4000)
     height: int = Field(default=500, ge=100, le=4000)
+    template_id: str | None = Field(default=None, description="PDF template UUID to use for branding")
+    language: Literal["ca", "es", "en", "pl"] = Field(
+        default="ca",
+        description="Language for PDF labels: ca (Catalan), es (Spanish), en (English), pl (Polish)",
+    )
 
 
 class ReportResponse(BaseModel):

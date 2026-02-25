@@ -23,9 +23,16 @@ COPY backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash appuser
+
 # Copy application code
 COPY backend/ ./backend/
+COPY alembic.ini ./alembic.ini
+
+# Switch to non-root user
+USER appuser
 
 EXPOSE 8000
 
-CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]

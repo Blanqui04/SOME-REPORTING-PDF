@@ -1,12 +1,20 @@
-const config = {
-  pending: { label: 'Pendiente', classes: 'bg-yellow-100 text-yellow-800' },
-  generating: { label: 'Generando', classes: 'bg-blue-100 text-blue-800' },
-  completed: { label: 'Completado', classes: 'bg-green-100 text-green-800' },
-  failed: { label: 'Error', classes: 'bg-red-100 text-red-800' },
-}
+import { useLanguage } from '../context/LanguageContext'
 
 export default function StatusBadge({ status }) {
-  const { label, classes } = config[status] || config.pending
+  const { t } = useLanguage()
+
+  const config = {
+    pending:    { classes: 'bg-yellow-100 text-yellow-800' },
+    generating: { classes: 'bg-blue-100 text-blue-800' },
+    completed:  { classes: 'bg-green-100 text-green-800' },
+    failed:     { classes: 'bg-red-100 text-red-800' },
+  }
+
+  const label = t(`status.${status}`) !== `status.${status}`
+    ? t(`status.${status}`)
+    : status
+
+  const { classes } = config[status] || config.pending
 
   return (
     <span

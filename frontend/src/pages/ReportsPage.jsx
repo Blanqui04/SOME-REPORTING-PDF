@@ -1,44 +1,52 @@
 import { useState, useEffect } from 'react'
 import { getReportsAPI } from '../api/client'
 import ReportRow from '../components/ReportRow'
-
-const statusTabs = [
-  { label: 'Todos', value: null },
-  { label: 'Completados', value: 'completed' },
-  { label: 'Pendientes', value: 'pending' },
-  { label: 'Fallidos', value: 'failed' },
-]
+import { useLanguage } from '../context/LanguageContext'
 
 export default function ReportsPage() {
+  const { t } = useLanguage()
   const [reports, setReports] = useState([])
   const [page, setPage] = useState(1)
   const [pages, setPages] = useState(1)
   const [total, setTotal] = useState(0)
   const [statusFilter, setStatusFilter] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const perPage = 10
 
+  const statusTabs = [
+    { label: t('reports.tab_all'), value: null },
+    { label: t('reports.tab_completed'), value: 'completed' },
+    { label: t('reports.tab_pending'), value: 'pending' },
+    { label: t('reports.tab_failed'), value: 'failed' },
+  ]
+
   useEffect(() => {
     setLoading(true)
+    setError(null)
     getReportsAPI(page, perPage, statusFilter)
       .then((res) => {
         setReports(res.data.items)
         setPages(res.data.pages)
         setTotal(res.data.total)
       })
-      .catch(() => {})
+      .catch((err) => {
+        setError(err.response?.data?.detail || t('reports.error'))
+      })
       .finally(() => setLoading(false))
   }, [page, statusFilter])
+
+  const plural = total !== 1 ? 's' : ''
 
   return (
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">
-          Historial de informes
+          {t('reports.title')}
         </h1>
         <p className="text-gray-500 mt-1">
-          {total} informe{total !== 1 ? 's' : ''} en total
+          {t('reports.total', { count: total, plural })}
         </p>
       </div>
 
@@ -60,6 +68,12 @@ export default function ReportsPage() {
           </button>
         ))}
       </div>
+
+      {error && (
+        <div className="bg-red-50 text-red-700 px-6 py-4 rounded-lg mb-6">
+          {error}
+        </div>
+      )}
 
       {loading ? (
         <div className="space-y-4">
@@ -85,8 +99,8 @@ export default function ReportsPage() {
               d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
             />
           </svg>
-          <p className="text-lg">No hay informes todavia</p>
-          <p className="mt-2">Genera tu primer informe desde un dashboard</p>
+          <p className="text-lg">{t('reports.empty_title')}</p>
+          <p className="mt-2">{t('reports.empty_subtitle')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -103,17 +117,17 @@ export default function ReportsPage() {
             disabled={page === 1}
             className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
           >
-            Anterior
+            {t('common.previous')}
           </button>
           <span className="text-sm text-gray-600">
-            Pagina {page} de {pages}
+            {t('common.page')} {page} {t('common.of')} {pages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(pages, p + 1))}
             disabled={page === pages}
             className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
           >
-            Siguiente
+            {t('common.next')}
           </button>
         </div>
       )}
